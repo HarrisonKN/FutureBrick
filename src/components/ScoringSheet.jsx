@@ -3,12 +3,12 @@ import { Plus, Trash2, X } from "lucide-react";
 import { clampScore, formatCurrency, weightedTotal } from "../data/spreadsheet";
 
 const META_COLS = [
-  { key: "address", label: "Address", width: "minmax(220px, 2fr)", type: "text" },
-  { key: "priceDisplay", label: "Price", width: "minmax(110px, 1fr)", type: "text" },
-  { key: "dateInspected", label: "Inspected", width: "110px", type: "text" },
+  { key: "address", label: "Address", width: "minmax(320px, 2.6fr)", type: "text" },
+  { key: "priceDisplay", label: "Price", width: "minmax(170px, 1.15fr)", type: "text" },
+  { key: "dateInspected", label: "Inspected", width: "132px", type: "text" },
   { key: "bedrooms", label: "Bed", width: "62px", type: "number" },
-  { key: "bathrooms", label: "Bathrooms", width: "110px", type: "number" },
-  { key: "toilets", label: "Toilets", width: "110px", type: "number" },
+  { key: "bathrooms", label: "Bathrooms", width: "88px", type: "number" },
+  { key: "toilets", label: "Toilets", width: "88px", type: "number" },
 ];
 
 export default function ScoringSheet({
@@ -126,9 +126,12 @@ export default function ScoringSheet({
 
                 {/* metadata cells */}
                 {META_COLS.map((col) => (
-                  <div key={`${row.id}-${col.key}`} className={`sh-cell sh-cell--meta ${col.key === "address" ? "sh-cell--addr" : ""} ${isSearch ? "is-search" : ""}`}>
+                  <div
+                    key={`${row.id}-${col.key}`}
+                    className={`sh-cell sh-cell--meta ${col.key === "address" ? "sh-cell--addr" : ""} ${col.key === "priceDisplay" ? "sh-cell--price" : ""} ${isSearch ? "is-search" : ""}`}
+                  >
                     {readOnlyMeta || isSearch ? (
-                      <span>{col.key === "priceDisplay" ? (row.priceDisplay || formatCurrency(row.price)) : (row[col.key] ?? "")}</span>
+                      <span className="sh-meta-value">{col.key === "priceDisplay" ? (row.priceDisplay || formatCurrency(row.price)) : (row[col.key] ?? "")}</span>
                     ) : (
                       <input
                         type={col.type}

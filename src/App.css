@@ -1155,6 +1155,31 @@ a {
   font-family: var(--sans);
 }
 
+.sh-cell--meta {
+  min-width: 0;
+}
+
+.sh-meta-value {
+  display: block;
+  width: 100%;
+}
+
+.sh-cell--addr {
+  align-items: flex-start;
+}
+
+.sh-cell--addr .sh-meta-value,
+.sh-cell--addr .sh-meta-input {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+.sh-cell--price .sh-meta-value,
+.sh-cell--price .sh-meta-input {
+  white-space: nowrap;
+}
+
 .sh-cell.is-spacer {
   min-height: 0;
   padding: 0;
