@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, NavLink, Navigate, Route, Routes } from "react-router-dom";
-import { ArrowUpDown, WandSparkles } from "lucide-react";
+import { ArrowUpDown, Palette, WandSparkles } from "lucide-react";
 import SearchBar from "./components/SearchBar";
 import ScoringSheet from "./components/ScoringSheet";
 import InsightsPage from "./components/InsightsPage";
@@ -26,6 +26,19 @@ const PAGES = [
   { to: "/search",   label: "Search" },
   { to: "/insights", label: "Insights" },
 ];
+
+const PALETTES = [
+  { id: "warm", label: "Warm Sand" },
+  { id: "serene", label: "Ocean Calm" },
+  { id: "slate", label: "Soft Slate" },
+  { id: "aurora", label: "Aurora Glow" },
+  { id: "midnight", label: "Midnight Neon" },
+  { id: "cyberlime", label: "Cyber Lime" },
+  { id: "cherrynoir", label: "Cherry Noir" },
+  { id: "ultraviolet", label: "Ultraviolet Pop" },
+  { id: "sunset", label: "Sunset Punch" },
+];
+const PALETTE_STORAGE_KEY = "futurebrick-palette";
 
 const STATIC_SORT_OPTIONS = [
   { key: "address", label: "Address" },
@@ -59,6 +72,15 @@ function sortRows(rows, sortKey, direction) {
   return direction === "asc" ? sorted : sorted.reverse();
 }
 
+function normalizePaletteId(value) {
+  return PALETTES.some((palette) => palette.id === value) ? value : PALETTES[0].id;
+}
+
+function getNextPaletteId(currentId) {
+  const currentIndex = PALETTES.findIndex((palette) => palette.id === currentId);
+  return PALETTES[(currentIndex + 1 + PALETTES.length) % PALETTES.length].id;
+}
+
 /* ── root ── */
 export default function App() {
   return (
@@ -77,6 +99,10 @@ function AppShell() {
   const [rows, setRows] = useState(SAMPLE_SHEET_ROWS);
   const [selectedIds, setSelectedIds] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "total", direction: "desc" });
+  const [paletteId, setPaletteId] = useState(() => {
+    if (typeof window === "undefined") return PALETTES[0].id;
+    return normalizePaletteId(window.localStorage.getItem(PALETTE_STORAGE_KEY));
+  });
 
   /* search */
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
@@ -90,6 +116,12 @@ function AppShell() {
     fn();
     return () => window.removeEventListener("scroll", fn);
   }, []);
+
+  useEffect(() => {
+    const normalized = normalizePaletteId(paletteId);
+    document.documentElement.dataset.palette = normalized;
+    window.localStorage.setItem(PALETTE_STORAGE_KEY, normalized);
+  }, [paletteId]);
 
   /* derived */
   const rowsWithTotals = useMemo(() => attachTotals(rows, criteria), [rows, criteria]);
@@ -108,6 +140,10 @@ function AppShell() {
   const selectedRows = useMemo(
     () => rowsWithTotals.filter((r) => selectedIds.includes(r.id)),
     [rowsWithTotals, selectedIds],
+  );
+  const currentPalette = useMemo(
+    () => PALETTES.find((palette) => palette.id === paletteId) ?? PALETTES[0],
+    [paletteId],
   );
 
   /* ── callbacks ── */
@@ -183,9 +219,13 @@ function AppShell() {
     });
   }, [criteria]);
 
+  const cyclePalette = useCallback(() => {
+    setPaletteId((previous) => getNextPaletteId(previous));
+  }, []);
+
   return (
     <div className="app">
-      <Header scrolled={scrolled} />
+      <Header scrolled={scrolled} paletteLabel={currentPalette.label} onCyclePalette={cyclePalette} />
 
       <main className="app-main">
         <Routes>
@@ -256,23 +296,31 @@ function AppShell() {
 }
 
 /* ── Header ── */
-function Header({ scrolled }) {
+function Header({ scrolled, paletteLabel, onCyclePalette }) {
   return (
     <header className={`app-header ${scrolled ? "is-scrolled" : ""}`}>
       <div className="hdr-inner">
         <NavLink to="/" className="hdr-logo">FutureBrick</NavLink>
-        <nav className="hdr-nav">
-          {PAGES.map((p) => (
-            <NavLink
-              key={p.to}
-              to={p.to}
-              end={p.to === "/"}
-              className={({ isActive }) => `hdr-link ${isActive ? "is-active" : ""}`}
-            >
-              {p.label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="hdr-controls">
+          <nav className="hdr-nav">
+            {PAGES.map((p) => (
+              <NavLink
+                key={p.to}
+                to={p.to}
+                end={p.to === "/"}
+                className={({ isActive }) => `hdr-link ${isActive ? "is-active" : ""}`}
+              >
+                {p.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <button type="button" className="hdr-theme-btn" onClick={onCyclePalette} aria-label={`Cycle colour palette. Current palette: ${paletteLabel}`}>
+            <Palette size={15} />
+            <span className="hdr-theme-btn__meta">Palette</span>
+            <span className="hdr-theme-btn__name">{paletteLabel}</span>
+          </button>
+        </div>
       </div>
     </header>
   );

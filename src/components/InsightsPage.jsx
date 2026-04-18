@@ -5,7 +5,16 @@ import { weightedTotal } from "../data/spreadsheet";
 function CriteriaChart({ rows, criteria }) {
   if (rows.length === 0) return <p className="ins-empty">Select rows on the Sheet or Search page to compare.</p>;
 
-  const colors = ["#5c4a32", "#d96c3f", "#2a7f9e", "#6b7c5e", "#9b5de5", "#ef476f", "#f4a261", "#118ab2"];
+  const colors = [
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+    "var(--chart-4)",
+    "var(--chart-5)",
+    "var(--chart-6)",
+    "var(--chart-7)",
+    "var(--chart-8)",
+  ];
 
   return (
     <div className="ins-chart">
