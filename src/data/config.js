@@ -74,4 +74,6 @@ export const RANKING_CATEGORIES = [
 
 export const PROPERTY_TYPES = ["All", "House", "Apartment", "Terrace", "Townhouse", "Land"];
 
-export const API_BASE = "http://localhost:3001";
+const configuredApiBase = import.meta.env.VITE_API_BASE?.trim();
+
+export const API_BASE = configuredApiBase || "";

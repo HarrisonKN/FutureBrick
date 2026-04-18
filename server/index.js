@@ -1,10 +1,16 @@
 import "dotenv/config";
 import process from "node:process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DIST_DIR = path.resolve(__dirname, "..", "dist");
+const INDEX_HTML = path.join(DIST_DIR, "index.html");
 
 app.use(cors());
 app.use(express.json());
@@ -983,6 +989,16 @@ app.post("/api/rank", (req, res) => {
 
   scored.sort((a, b) => b.score - a.score);
   res.json(scored);
+});
+
+app.use(express.static(DIST_DIR));
+
+app.get(/^\/(?!api\/).*/, (req, res, next) => {
+  return res.sendFile(INDEX_HTML, (err) => {
+    if (err) {
+      next(err);
+    }
+  });
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
